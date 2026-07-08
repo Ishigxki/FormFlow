@@ -3,16 +3,16 @@ USE formflow_db;
 
 
 CREATE TABLE Users (
-    id INTEGER PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
-    password_hash VARCHAR NOT NULL,
-    created_at DATE NOT NULL
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL
 
 );
 
 CREATE TABLE Student_Profile(
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER ,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     university VARCHAR(100) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE Student_Profile(
 );
 
 CREATE TABLE Opportunities(
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     company VARCHAR(100) NOT NULL,
     type VARCHAR(100) NOT NULL,
@@ -36,10 +36,13 @@ CREATE TABLE Opportunities(
 );
 
 CREATE TABLE Applications(
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     student_id INTEGER,
     opportunity_id INTEGER,
     status VARCHAR(20) NOT NULL,
-    created_at Date NOT NULL,
-    updated_at DATE NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+
+    FOREIGN KEY (student_id) REFERENCES Student_Profile(id),
+    FOREIGN KEY (opportunity_id) REFERENCES Oppotunities(id)
 );
