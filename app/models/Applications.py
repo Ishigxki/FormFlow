@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Datetime,ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime,ForeignKey
 
 from app.database.database import Base
 
@@ -10,6 +10,6 @@ class Applications(Base):
     student_id =Column(Integer, ForeignKey("student_profile.id"), nullable=False)
     opportunity_id = Column(Integer, ForeignKey("opportunities.id"), nullable=False)
     status = Column(String(20),nullable=False)
-    created_at = Column(Datetime, nullable=False)
-    updated_at = Column(Datetime, nullable=False)
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
 

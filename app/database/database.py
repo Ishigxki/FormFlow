@@ -5,8 +5,7 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = "postgresql://postgres:buru@god47/formflow_db"
-
+DATABASE_URL = "postgresql://postgres:buru%40god47@localhost:5432/formflow"
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
