@@ -12,3 +12,4 @@ class StudentProfile(Base):
     degree = Column(String(100), nullable=False)
     graduation_year = Column(Integer, nullable=False)
     bio = Column(String(255), nullable=True)
+    
