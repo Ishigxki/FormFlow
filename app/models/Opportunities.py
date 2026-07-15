@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from app.database.database import Base
 
 
+
 class Opportunity(Base):
     __tablename__ = "opportunities"
 

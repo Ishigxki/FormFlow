@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import student_profile, users
+from app.api.routes import opportunities, student_profile, users, applictions
 from app.database.database import Base, engine
 from app.models.Applications import Applications
 from app.models.user import User
@@ -12,6 +12,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.include_router(users.router)
+app.include_router(applictions.router)
+app.include_router(opportunities.router)
 app.include_router(student_profile.router) 
 @app.get("/")
 
