@@ -32,3 +32,24 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
         "deadline": new_opportunity.deadline,
         "application_link": new_opportunity.application_link
     }
+
+
+@router.get("/opportunities")
+def get_opportunities(db: Session = Depends(get_db)):
+    opportunities = db.query(Opportunity).all()
+    return opportunities
+
+@router.get("/opportunities/{opportunity_id}")  
+def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
+    opportunity = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
+    if opportunity is None:
+        return {"error": "Opportunity not found"}
+    return {
+        "id": opportunity.id,
+        "title": opportunity.title,
+        "description": opportunity.description,
+        "company": opportunity.company,
+        "type": opportunity.type,
+        "deadline": opportunity.deadline,
+        "application_link": opportunity.application_link
+    }

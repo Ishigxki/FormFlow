@@ -33,3 +33,25 @@ def create_student_profile(student_profile: StudentProfileCreate, db: Session = 
     "graduation_year": new_student_profile.graduation_year,
     "bio": new_student_profile.bio
 }
+
+@router.get("/student_profile")
+def get_student_profile(db: Session = Depends(get_db)):
+    student_profiles = db.query(StudentProfile).all()
+    return student_profiles
+
+
+@router.get("/student_profile/{user_id}")   
+def get_student_profile_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()
+    if student_profile is None:
+        return {"error": "Student profile not found"}
+    return {
+        "id": student_profile.id,
+        "user_id": student_profile.user_id,
+        "first_name": student_profile.first_name,
+        "last_name": student_profile.last_name,
+        "university": student_profile.university,
+        "degree": student_profile.degree,
+        "graduation_year": student_profile.graduation_year,
+        "bio": student_profile.bio
+    }

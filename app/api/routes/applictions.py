@@ -30,3 +30,22 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
         "created_at": new_application.created_at,
         "updated_at": new_application.updated_at
     }
+
+@router.get("/applications")
+def get_applications(db: Session = Depends(get_db)):
+    applications = db.query(Applications).all()
+    return applications
+
+@router.get("/applications/{application_id}")
+def get_application(application_id: int, db: Session = Depends(get_db)):
+    application = db.query(Applications).filter(Applications.id == application_id).first()
+    if application is None:
+        return {"error": "Application not found"}
+    return {
+        "id": application.id,
+        "student_id": application.student_id,
+        "opportunity_id": application.opportunity_id,
+        "status": application.status,
+        "created_at": application.created_at,
+        "updated_at": application.updated_at
+    }

@@ -1,111 +1,143 @@
 # 🚀 FormFlow
 
-FormFlow is a backend application that streamlines how students discover opportunities and manage applications from a single platform.
+FormFlow is a backend platform designed to simplify how students discover opportunities and manage applications from a single place.
 
-The goal is to replace repetitive application forms with reusable student profiles while giving organizations a structured way to publish internships, graduate programmes, bursaries and scholarships.
+Instead of completing the same personal information across dozens of internship, graduate programme, bursary and scholarship applications, students create a reusable profile that can be used throughout their application journey. Organizations can publish opportunities while managing applicants through a structured backend.
 
-This project is being built as a production-style backend to demonstrate modern backend engineering practices.
+The long-term vision is to build a platform that reduces repetitive applications, improves accessibility to opportunities, and provides organizations with a streamlined recruitment experience.
+
+This project is being developed as a production-style backend to demonstrate modern backend engineering principles including REST API development, database design, authentication, and scalable application architecture.
 
 ---
 
-## ✨ Current Features
+# ✨ Current Features
 
-- ✅ User Registration API
-- ✅ Student Profile API
-- ✅ PostgreSQL Database Integration
+### User Management
+- ✅ Create User
+- ✅ Get All Users
+- ✅ Get User by ID
+
+### Student Profiles
+- ✅ Create Student Profile
+- ✅ Get All Student Profiles
+- ✅ Get Student Profile by User ID
+
+### Opportunities
+- ✅ Create Opportunity
+- ✅ Get All Opportunities
+- ✅ Get Opportunity by ID
+
+### Applications
+- ✅ Create Application
+- ✅ Get All Applications
+- ✅ Get Application by ID
+
+### Backend
+- ✅ PostgreSQL Integration
 - ✅ SQLAlchemy ORM
-- ✅ Request Validation with Pydantic
-- ✅ RESTful API using FastAPI
+- ✅ FastAPI REST API
+- ✅ Request Validation using Pydantic
 - ✅ Interactive Swagger Documentation
+- ✅ Relational Database Design
 
 ---
 
-## 🚧 In Development
+# 🚧 Currently Building
 
-- Opportunities API
-- Application Management
-- JWT Authentication
-- Secure Password Hashing
+- Update Endpoints (PUT)
+- Delete Endpoints (DELETE)
+- Password Hashing
+- User Authentication
+- JWT Authorization
 - Search & Filtering
-- Role-based Authorization
+- Role-based Permissions
 - Docker Support
 - Automated Testing
 - Cloud Deployment
 
 ---
 
-## 🛠 Tech Stack
+# 🛠 Tech Stack
 
-**Backend**
+## Backend
 - Python
 - FastAPI
 
-**Database**
+## Database
 - PostgreSQL
 - SQLAlchemy
 
-**Validation**
+## Validation
 - Pydantic
 
-**Server**
+## Server
 - Uvicorn
 
-**Tools**
+## Development Tools
 - Git
 - GitHub
 - VS Code
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
+```text
 formflow/
 │
 ├── app/
 │   ├── api/
-│   ├── auth/
-│   ├── core/
+│   │   └── routes/
 │   ├── database/
 │   ├── models/
 │   ├── schemas/
-│   ├── services/
-│   └── main.py
+│   ├── main.py
+│   └── __init__.py
 │
-├── tests/
-├── docs/
-├── docker/
 ├── requirements.txt
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## 📌 Current Progress
+# 📌 Current Progress
 
-- ✅ Database Designed
+- ✅ Database Configuration
 - ✅ SQLAlchemy Models
-- ✅ User Registration Endpoint
-- ✅ Student Profile Endpoint
+- ✅ Pydantic Schemas
+- ✅ User CRUD (Create & Read)
+- ✅ Student Profile CRUD (Create & Read)
+- ✅ Opportunity CRUD (Create & Read)
+- ✅ Application CRUD (Create & Read)
+- 🚧 Update Operations
+- 🚧 Delete Operations
+- 🚧 Authentication
 
 ---
 
-## 🎯 Roadmap
+# 🎯 Roadmap
 
-- [x] User Registration
+- [x] PostgreSQL Integration
+- [x] Database Models
+- [x] User Management
 - [x] Student Profiles
-- [ ] Opportunities
-- [ ] Applications
-- [ ] Authentication
+- [x] Opportunities
+- [x] Applications
+- [x] Create Endpoints
+- [x] Read Endpoints
+- [ ] Update Endpoints
+- [ ] Delete Endpoints
 - [ ] Password Hashing
-- [ ] Protected Routes
-- [ ] Docker
+- [ ] Authentication
+- [ ] JWT Authorization
 - [ ] Testing
+- [ ] Docker
 - [ ] Deployment
 
 ---
 
-## 📸 API Documentation
+# 📸 API Documentation
 
 Once the server is running:
 
@@ -113,17 +145,24 @@ Once the server is running:
 http://localhost:8000/docs
 ```
 
-Interactive Swagger UI allows testing every endpoint directly from the browser.
+Swagger UI provides interactive documentation for testing every endpoint.
 
 ---
 
-## 📈 Why this project?
+# 🎯 Vision
 
-FormFlow is designed to demonstrate backend software engineering skills including:
+Students often repeat the same application process across multiple platforms, manually entering identical personal, academic and contact information every time they apply.
 
-- REST API Design
-- Database Modeling
-- Authentication
-- ORM Usage
-- Backend Architecture
-- Production-ready Development Practices
+FormFlow aims to solve this by providing a reusable student profile that can be used to apply for internships, graduate programmes, bursaries, scholarships and future career opportunities from one centralized platform.
+
+Beyond simplifying applications, the long-term goal is to provide organizations with structured opportunity management, applicant tracking and intelligent matching between students and opportunities.
+
+---
+
+# 💡 Why FormFlow?
+
+FormFlow is more than a CRUD project.
+
+It is an exploration of how modern backend engineering can be used to solve a real-world problem through clean architecture, relational database modelling, RESTful APIs and scalable software design.
+
+The project is intentionally being developed incrementally using production-inspired practices, with each feature building toward a complete backend platform.
