@@ -42,4 +42,13 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         "email": user.email
     }
     
-
+@router.put("/users/{user_id}")
+def update_user(user_id: int,user:str, db: Session = Depends(get_db)):
+    user_to_update = db.query(User).filter(user_id == user_id).first()
+    if user_to_update is None:
+        return {"error":"User not found"}
+    else:
+        user_to_update.username = user.username
+        user_to_update.email =user.email
+        user_to_update.password_hash = user.password
+    
