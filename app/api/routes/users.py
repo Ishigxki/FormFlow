@@ -3,6 +3,7 @@ from app.schemas.user import UserCreate
 from app.api.routes.dependencies import get_db
 from app.models.user import User
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from fastapi import Depends
 
 router = APIRouter()
@@ -35,7 +36,7 @@ def get_users(db: Session = Depends(get_db)):
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
     return {
         "id": user.id,
         "username": user.username,
@@ -43,12 +44,24 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     }
     
 @router.put("/users/{user_id}")
-def update_user(user_id: int,user:str, db: Session = Depends(get_db)):
-    user_to_update = db.query(User).filter(user_id == user_id).first()
+def update_user(user_id: int,user:UserCreate, db: Session = Depends(get_db)):
+    user_to_update = db.query(User).filter(User.id == user_id).first()
     if user_to_update is None:
-        return {"error":"User not found"}
-    else:
-        user_to_update.username = user.username
-        user_to_update.email =user.email
-        user_to_update.password_hash = user.password
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_to_update.username = user.username
+    user_to_update.email =user.email
+    user_to_update.password_hash = user.password
+
+
+    db.commit()
+    db.refresh(user_to_update)
+
+    return {
+        "id": user_to_update.id,
+        "username": user_to_update.username,
+        "email": user_to_update.email
+    }
+
+
     
