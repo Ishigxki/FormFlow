@@ -1,82 +1,132 @@
 # 🚀 FormFlow
 
-FormFlow is a backend platform designed to simplify how students discover opportunities and manage applications from a single place.
+> **Apply once. Opportunity everywhere.**
 
-Instead of completing the same personal information across dozens of internship, graduate programme, bursary and scholarship applications, students create a reusable profile that can be used throughout their application journey. Organizations can publish opportunities while managing applicants through a structured backend.
+FormFlow is a production-style backend platform that aims to simplify how students discover and apply for internships, graduate programmes, bursaries and scholarships.
 
-The long-term vision is to build a platform that reduces repetitive applications, improves accessibility to opportunities, and provides organizations with a streamlined recruitment experience.
+Instead of repeatedly filling out the same personal information across dozens of applications, students create a reusable profile while organizations publish and manage opportunities through a centralized platform.
 
-This project is being developed as a production-style backend to demonstrate modern backend engineering principles including REST API development, database design, authentication, and scalable application architecture.
+Although FormFlow currently focuses on backend development, the long-term vision is to build an ecosystem that connects students with career opportunities through scalable, secure and intelligent software.
+
+This repository documents that engineering journey—from a simple REST API to a production-ready backend.
+
+---
+
+# 🌍 The Problem
+
+Students often spend hours repeatedly entering the same information for internships, bursaries, scholarships and graduate programmes.
+
+Organizations also rely on disconnected systems to advertise opportunities and manage applicants.
+
+This leads to:
+
+- Repetitive applications
+- Poor user experience
+- Duplicate information
+- Inefficient recruitment workflows
+
+FormFlow aims to solve these challenges through a reusable student profile and a centralized application platform.
 
 ---
 
 # ✨ Current Features
 
-### User Management
+## 👤 User Management
+
 - ✅ Create User
 - ✅ Get All Users
 - ✅ Get User by ID
+- 🚧 Update User
+- 🚧 Delete User
 
-### Student Profiles
+## 🎓 Student Profiles
+
 - ✅ Create Student Profile
 - ✅ Get All Student Profiles
 - ✅ Get Student Profile by User ID
+- 🚧 Update Student Profile
+- 🚧 Delete Student Profile
 
-### Opportunities
+## 💼 Opportunities
+
 - ✅ Create Opportunity
 - ✅ Get All Opportunities
 - ✅ Get Opportunity by ID
+- 🚧 Update Opportunity
+- 🚧 Delete Opportunity
 
-### Applications
+## 📝 Applications
+
 - ✅ Create Application
 - ✅ Get All Applications
 - ✅ Get Application by ID
-
-### Backend
-- ✅ PostgreSQL Integration
-- ✅ SQLAlchemy ORM
-- ✅ FastAPI REST API
-- ✅ Request Validation using Pydantic
-- ✅ Interactive Swagger Documentation
-- ✅ Relational Database Design
+- 🚧 Update Application
+- 🚧 Delete Application
 
 ---
 
-# 🚧 Currently Building
+# ⚙️ Backend Features
 
-- Update Endpoints (PUT)
-- Delete Endpoints (DELETE)
-- Password Hashing
-- User Authentication
-- JWT Authorization
-- Search & Filtering
-- Role-based Permissions
-- Docker Support
-- Automated Testing
-- Cloud Deployment
+- ✅ FastAPI REST API
+- ✅ PostgreSQL Database
+- ✅ SQLAlchemy ORM
+- ✅ Pydantic Validation
+- ✅ Relational Database Design
+- ✅ Swagger API Documentation
+- 🚧 Automated Testing
+- 🚧 Authentication
+- 🚧 JWT Authorization
+- 🚧 Docker
+- 🚧 Cloud Deployment
 
 ---
 
 # 🛠 Tech Stack
 
-## Backend
+### Backend
+
 - Python
 - FastAPI
 
-## Database
+### Database
+
 - PostgreSQL
 - SQLAlchemy
 
-## Validation
+### Validation
+
 - Pydantic
 
-## Server
-- Uvicorn
+### Development
 
-## Development Tools
 - Git
 - GitHub
 - VS Code
+- Uvicorn
+
+---
+
+# 🏗 Architecture
+
+```
+                Client
+                   │
+                   ▼
+             FastAPI Routes
+                   │
+                   ▼
+          Request Validation
+              (Pydantic)
+                   │
+                   ▼
+            Business Logic
+                   │
+                   ▼
+          SQLAlchemy ORM
+                   │
+                   ▼
+             PostgreSQL
+```
 
 ---
 
@@ -94,6 +144,7 @@ formflow/
 │   ├── main.py
 │   └── __init__.py
 │
+├── tests/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -101,61 +152,94 @@ formflow/
 
 ---
 
-# 📌 Current Progress
+# 📊 Current Progress
 
-- ✅ Database Configuration
-- ✅ SQLAlchemy Models
-- ✅ Pydantic Schemas
-- ✅ User CRUD (Create & Read)
-- ✅ Student Profile CRUD (Create & Read)
-- ✅ Opportunity CRUD (Create & Read)
-- ✅ Application CRUD (Create & Read)
-- 🚧 Update Operations
-- 🚧 Delete Operations
-- 🚧 Authentication
-
----
-
-# 🎯 Roadmap
-
-- [x] PostgreSQL Integration
-- [x] Database Models
-- [x] User Management
-- [x] Student Profiles
-- [x] Opportunities
-- [x] Applications
-- [x] Create Endpoints
-- [x] Read Endpoints
-- [ ] Update Endpoints
-- [ ] Delete Endpoints
-- [ ] Password Hashing
-- [ ] Authentication
-- [ ] JWT Authorization
-- [ ] Testing
-- [ ] Docker
-- [ ] Deployment
+| Feature | Status |
+|----------|--------|
+| Database Design | ✅ Complete |
+| Models | ✅ Complete |
+| Schemas | ✅ Complete |
+| Create Endpoints | ✅ Complete |
+| Read Endpoints | ✅ Complete |
+| Update Endpoints | 🚧 In Progress |
+| Delete Endpoints | ⏳ Planned |
+| Authentication | ⏳ Planned |
+| Testing | ⏳ Planned |
+| Docker | ⏳ Planned |
+| Deployment | ⏳ Planned |
 
 ---
 
-# 📸 API Documentation
+# 🗺 Roadmap
 
-Once the server is running:
+- [x] Design relational database
+- [x] Build SQLAlchemy models
+- [x] Create REST API endpoints
+- [x] Implement Create operations
+- [x] Implement Read operations
+- [ ] Complete Update operations
+- [ ] Complete Delete operations
+- [ ] Password hashing
+- [ ] JWT Authentication
+- [ ] Role-based Authorization
+- [ ] Automated Testing
+- [ ] Docker Support
+- [ ] CI/CD Pipeline
+- [ ] Cloud Deployment
+
+---
+
+# 🧪 API Documentation
+
+Run the application:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Visit:
 
 ```
 http://localhost:8000/docs
 ```
 
-Swagger UI provides interactive documentation for testing every endpoint.
+Swagger UI provides interactive documentation for testing every endpoint directly from the browser.
 
 ---
 
-# 🎯 Vision
+# 📚 Engineering Lessons
 
-Students often repeat the same application process across multiple platforms, manually entering identical personal, academic and contact information every time they apply.
+Building FormFlow has strengthened my understanding of:
 
-FormFlow aims to solve this by providing a reusable student profile that can be used to apply for internships, graduate programmes, bursaries, scholarships and future career opportunities from one centralized platform.
+- Designing relational databases
+- Foreign keys and data integrity
+- REST API design
+- Layered backend architecture
+- SQLAlchemy ORM
+- Request validation with Pydantic
+- HTTP status codes and exception handling
+- CRUD operations
+- Backend debugging and troubleshooting
 
-Beyond simplifying applications, the long-term goal is to provide organizations with structured opportunity management, applicant tracking and intelligent matching between students and opportunities.
+---
+
+# 🔮 Future Vision
+
+FormFlow is intended to grow beyond a CRUD backend into a platform that helps students throughout their career journey.
+
+Potential future features include:
+
+- Resume Builder
+- CV Parsing
+- AI-powered Opportunity Matching
+- Student Dashboard
+- Recruiter Dashboard
+- Applicant Tracking
+- Search & Filtering
+- Email Notifications
+- Analytics
+- Public API
+- Mobile Application
 
 ---
 
@@ -163,6 +247,8 @@ Beyond simplifying applications, the long-term goal is to provide organizations 
 
 FormFlow is more than a CRUD project.
 
-It is an exploration of how modern backend engineering can be used to solve a real-world problem through clean architecture, relational database modelling, RESTful APIs and scalable software design.
+It is an exploration of how modern backend engineering can solve real-world problems through clean architecture, scalable APIs and thoughtful system design.
 
-The project is intentionally being developed incrementally using production-inspired practices, with each feature building toward a complete backend platform.
+Every feature is being built incrementally using production-inspired development practices, with an emphasis on writing maintainable, extensible software rather than simply completing tutorials.
+
+The goal is not only to learn backend engineering—but to build software that could eventually serve real students and organizations.
