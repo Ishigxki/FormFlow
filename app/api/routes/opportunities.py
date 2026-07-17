@@ -4,6 +4,7 @@ from app.api.routes.dependencies import get_db
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
 from fastapi import Depends
+from fastapi import HTTPException
 
 
 router = APIRouter()
@@ -52,4 +53,31 @@ def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
         "type": opportunity.type,
         "deadline": opportunity.deadline,
         "application_link": opportunity.application_link
+    }
+
+@router.put("/opportunities/{opportunity_id}")
+
+def update_oppotunities(opportunity_id: int,opportunity:OpportunityCreate,db:Session =Depends(get_db)):
+    opportunity_to_update = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
+    if opportunity_to_update is None:
+        raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
+    
+    opportunity_to_update.title = opportunity.title
+    opportunity_to_update.description =opportunity.description
+    opportunity_to_update.type = opportunity.type
+    opportunity_to_update.deadline = opportunity.deadline
+    opportunity_to_update.application_link =opportunity.application_link
+    opportunity_to_update.company =opportunity.company
+
+    db.commit()
+    db.refresh(opportunity_to_update)
+
+    return {
+        "id" :opportunity_to_update.id,
+        "title": opportunity_to_update.title,
+        "description":opportunity_to_update.description,
+        "type":opportunity_to_update.type,
+        "deadline":opportunity_to_update.deadline,
+        "application_link":opportunity_to_update.application_link,
+        "company":opportunity_to_update.company
     }
