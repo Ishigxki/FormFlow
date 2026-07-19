@@ -14,11 +14,10 @@ router = APIRouter()
 def create_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == student_profile.user_id).first()
 
-    if user is None:
-     
-     raise HTTPException(
-        status_code=404,
-        detail="User does not exist"
+    if user is None: 
+        raise HTTPException(
+            status_code=404,
+            detail="User does not exist"
     )
     new_student_profile = StudentProfile(
         user_id=student_profile.user_id,
