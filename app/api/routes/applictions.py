@@ -71,3 +71,15 @@ def application_update(application_id:int,application:ApplicationCreate, db: Ses
         "updated_at":application_to_update.updated_at
 
     }
+
+@router.delete("/applications/{application_id}")
+def delete_application(application_id:int,db : Session = Depends(get_db)):
+    application_to_delete =db.query(Applications).filter(Applications.id ==application_id).first()
+    if application_to_delete is None:
+        raise HTTPException (status_code=404,detail="application not found")
+    db.delete(application_to_delete)
+    db.commit()
+
+    return {
+    "message": f"Application {application_id} deleted successfully"
+}

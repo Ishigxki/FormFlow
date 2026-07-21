@@ -57,7 +57,7 @@ def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
 
 @router.put("/opportunities/{opportunity_id}")
 
-def update_oppotunities(opportunity_id: int,opportunity:OpportunityCreate,db:Session =Depends(get_db)):
+def update_opportunities(opportunity_id: int,opportunity:OpportunityCreate,db:Session =Depends(get_db)):
     opportunity_to_update = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
     if opportunity_to_update is None:
         raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
@@ -80,4 +80,17 @@ def update_oppotunities(opportunity_id: int,opportunity:OpportunityCreate,db:Ses
         "deadline":opportunity_to_update.deadline,
         "application_link":opportunity_to_update.application_link,
         "company":opportunity_to_update.company
+    }
+
+@router.delete("/opportunities/{opportunity_id}")
+def delete_opportunities(opportunity_id: int,db: Session=Depends(get_db)):
+    opportunity_to_delete = db.query(Opportunity).filter(Opportunity.id==opportunity_id).first()
+    if opportunity_to_delete is None:
+        raise HTTPException(status_code=404, detail="opportunity not found")
+    
+    db.delete(opportunity_to_delete)
+    db.commit()
+
+    return {
+        "message":f"opportunity {opportunity_id} deleted"
     }

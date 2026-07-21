@@ -93,3 +93,16 @@ def update_student_profile(user_id: int,student_profile: StudentProfileCreate, d
         "bio":student_to_update.bio
 
     }
+
+@router.delete("/student_profile/{user_id}")
+def delete_student_profile(user_id: int,db: Session = Depends(get_db)):
+    student_profile_to_delete = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()
+    if student_profile_to_delete is None:
+        raise HTTPException(status_code=404,detail="student profile not found")
+    
+    db.delete(student_profile_to_delete)
+    db.commit()
+
+    return{
+        "message":"Student profile deleted"
+    }
