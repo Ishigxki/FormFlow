@@ -1,10 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.Applications import ApplicationCreate  
 from app.api.routes.dependencies import get_db
 from app.models.Applications import Applications
 from sqlalchemy.orm import Session
-from fastapi import Depends
-from fastapi import HTTPException
+
 
 
 router = APIRouter()
@@ -12,13 +11,16 @@ router = APIRouter()
 @router.post("/applications")
 def create_application(application: ApplicationCreate, db: Session = Depends(get_db)):
     new_application = Applications(
-        id=application.id,
+        
         student_id=application.student_id,
         opportunity_id=application.opportunity_id,
         status=application.status,
         created_at=application.created_at,
         updated_at=application.updated_at
     )
+    existing_application =db.query(Applications).filter(Applications.student_id == application.student_id,Applications.opportunity_id == application.opportunity_id).first()
+    if existing_application:
+        raise HTTPException(status_code=400,detail="Student has already applied to this opportunity")
 
     db.add(new_application)
     db.commit()
@@ -41,7 +43,10 @@ def get_applications(db: Session = Depends(get_db)):
 def get_application(application_id: int, db: Session = Depends(get_db)):
     application = db.query(Applications).filter(Applications.id == application_id).first()
     if application is None:
-        return {"error": "Application not found"}
+        raise HTTPException(
+    status_code=404,
+    detail="Application not found"
+)
     return {
         "id": application.id,
         "student_id": application.student_id,

@@ -1,18 +1,22 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.opptunities import OpportunityCreate
 from app.api.routes.dependencies import get_db
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
-from fastapi import Depends
-from fastapi import HTTPException
+
 
 
 router = APIRouter()
 
 @router.post("/opportunities")
 def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get_db)):
+    existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company == opportunity.company).first()
+)
+
+    if existing_opportunity:
+        raise HTTPException(status_code=400,detail="Opportunity already registered")
+
     new_opportunity = Opportunity(
-        id=opportunity.id,
         title=opportunity.title,
         description=opportunity.description,
         company=opportunity.company,
@@ -44,7 +48,7 @@ def get_opportunities(db: Session = Depends(get_db)):
 def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
     opportunity = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
     if opportunity is None:
-        return {"error": "Opportunity not found"}
+       raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
     return {
         "id": opportunity.id,
         "title": opportunity.title,

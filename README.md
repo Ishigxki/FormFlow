@@ -161,8 +161,8 @@ formflow/
 | Schemas | ✅ Complete |
 | Create Endpoints | ✅ Complete |
 | Read Endpoints | ✅ Complete |
-| Update Endpoints | 🚧 In Progress |
-| Delete Endpoints | ⏳ Planned |
+| Update Endpoints | ✅ In Progress |
+| Delete Endpoints | ✅ Planned |
 | Authentication | ⏳ Planned |
 | Testing | ⏳ Planned |
 | Docker | ⏳ Planned |
@@ -177,8 +177,8 @@ formflow/
 - [x] Create REST API endpoints
 - [x] Implement Create operations
 - [x] Implement Read operations
-- [ ] Complete Update operations
-- [ ] Complete Delete operations
+- [x] Complete Update operations
+- [x] Complete Delete operations
 - [ ] Password hashing
 - [ ] JWT Authentication
 - [ ] Role-based Authorization

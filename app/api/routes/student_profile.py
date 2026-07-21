@@ -1,11 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.student_profile import StudentProfileCreate
 from app.api.routes.dependencies import get_db
-from fastapi import HTTPException
 from app.models.user import User
 from app.models.student_profile import StudentProfile
 from sqlalchemy.orm import Session
-from fastapi import Depends
+
 
 
 router = APIRouter()
@@ -13,6 +12,14 @@ router = APIRouter()
 @router.post("/student_profile")
 def create_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == student_profile.user_id).first()
+    existing_profile = db.query(StudentProfile).filter(
+    StudentProfile.user_id == student_profile.user_id
+).first()
+
+    if existing_profile:
+        raise HTTPException(status_code=400,
+        detail="Student profile already exists"
+    )
 
     if user is None: 
         raise HTTPException(
@@ -54,7 +61,7 @@ def get_student_profile_by_user_id(user_id: int, db: Session = Depends(get_db)):
     
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()
     if student_profile is None:
-        return {"error": "Student profile not found"}
+        raise HTTPException(status_code=404, detail="student profile not found")
     return {
         "id": student_profile.id,
         "user_id": student_profile.user_id,
@@ -70,7 +77,8 @@ def get_student_profile_by_user_id(user_id: int, db: Session = Depends(get_db)):
 def update_student_profile(user_id: int,student_profile: StudentProfileCreate, db: Session = Depends(get_db)):
     student_to_update = db.query(StudentProfile).filter(StudentProfile.user_id ==user_id).first()
     if student_to_update is None:
-        raise HTTPException(status_code=404, detail="User not found")
+         raise HTTPException(status_code=404,detail="student profile not found")
+    
     
     student_to_update.first_name = student_profile.first_name
     student_to_update.last_name = student_profile.last_name
