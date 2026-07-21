@@ -161,10 +161,10 @@ formflow/
 | Schemas | ✅ Complete |
 | Create Endpoints | ✅ Complete |
 | Read Endpoints | ✅ Complete |
-| Update Endpoints | ✅ In Progress |
-| Delete Endpoints | ✅ Planned |
-| Authentication | ⏳ Planned |
-| Testing | ⏳ Planned |
+| Update Endpoints | ✅ Complete |
+| Delete Endpoints | ✅ Complete |
+| Authentication | ⏳ In Progress |
+| Testing | ⏳ In Progress |
 | Docker | ⏳ Planned |
 | Deployment | ⏳ Planned |
 
