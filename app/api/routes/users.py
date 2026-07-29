@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException,status
 from app.schemas.user import UserCreate
 from app.api.routes.dependencies import get_db
 from app.models.user import User
-from app.security.hashing import hash_password
+from app.security.hashing import hash_password, verify_password
 from sqlalchemy.orm import Session
-
+from fastapi.security import OAuth2PasswordRequestForm
+from app.security.dependencies import get_current_user
+from app.security.jwt import create_access_token
 
 router = APIRouter()
 
@@ -36,6 +38,20 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         "username": new_user.username,
         "email": new_user.email
     }
+
+@router.post("/login/")
+
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session =Depends(get_db)):
+    user =db.query(User).filter(User.email ==form_data.username).first()
+    if not user or not verify_password(form_data.password,user.password_hash):
+        raise HTTPException(status_code=401,detail="Invalid email or password")
+    
+    access_token = create_access_token({"sub":str(user.id)})
+    
+    return {"access_token":access_token,"token_type":"bearer"} 
+    
+
+    
         
 @router.get("/users")
 def get_users(db: Session = Depends(get_db)):
@@ -95,5 +111,15 @@ def delete_user(user_id: int,db: Session = Depends(get_db)):
     return {
         "message": f"User {user_id} deleted successfully"
     }
+
+@router.get("/me")
+
+def get_me(current_user: User = Depends(get_current_user)):
+    return{
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email
+    }
+
 
     

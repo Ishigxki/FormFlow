@@ -3,6 +3,7 @@ from app.schemas.student_profile import StudentProfileCreate
 from app.api.routes.dependencies import get_db
 from app.models.user import User
 from app.models.student_profile import StudentProfile
+from app.security.dependencies import get_current_user
 from sqlalchemy.orm import Session
 
 
@@ -10,10 +11,10 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 @router.post("/student_profile")
-def create_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == student_profile.user_id).first()
+def create_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    user = current_user
     existing_profile = db.query(StudentProfile).filter(
-    StudentProfile.user_id == student_profile.user_id
+    StudentProfile.user_id == current_user.id
 ).first()
 
     if existing_profile:
@@ -21,13 +22,9 @@ def create_student_profile(student_profile: StudentProfileCreate, db: Session = 
         detail="Student profile already exists"
     )
 
-    if user is None: 
-        raise HTTPException(
-            status_code=404,
-            detail="User does not exist"
-    )
+    
     new_student_profile = StudentProfile(
-        user_id=student_profile.user_id,
+        user_id=current_user.id,
         first_name = student_profile.first_name,
         last_name = student_profile.last_name,
         university=student_profile.university,

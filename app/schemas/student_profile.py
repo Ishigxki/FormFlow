@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class StudentProfileCreate(BaseModel):
-    user_id: int
+   
     
     first_name: str
     last_name: str
