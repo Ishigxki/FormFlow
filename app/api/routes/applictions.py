@@ -1,18 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.Applications import ApplicationCreate  
+from app.schemas.Applications import ApplicationCreate, ApplicationResponse, ApplicationUpdate,MessageResponse
 from app.api.routes.dependencies import get_db
 from app.models.Applications import Applications
 from app.security.dependencies import get_current_user
 from app.models.student_profile import StudentProfile
 from app.models.user import User
 from sqlalchemy.orm import Session
+from typing import List
 from datetime import datetime, timezone
 
 
 
 router = APIRouter()
 
-@router.post("/applications")
+@router.post("/applications", response_model=ApplicationResponse)
 def create_application(application: ApplicationCreate, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
 
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
@@ -34,16 +35,9 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
     db.add(new_application)
     db.commit()
     db.refresh(new_application)
-    return {
-        "id": new_application.id,
-        "student_id": new_application.student_id,
-        "opportunity_id": new_application.opportunity_id,
-        "status": new_application.status,
-        "created_at": new_application.created_at,
-        "updated_at": new_application.updated_at
-    }
+    return new_application
 
-@router.get("/applications")
+@router.get("/applications",response_model=List[ApplicationResponse])
 def get_applications(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
 
@@ -54,7 +48,7 @@ def get_applications(db: Session = Depends(get_db),current_user: User = Depends(
 
     return applications
 
-@router.get("/applications/{application_id}")
+@router.get("/applications/{application_id}",response_model=ApplicationResponse)
 def get_application(application_id: int, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     
@@ -68,17 +62,13 @@ def get_application(application_id: int, db: Session = Depends(get_db),current_u
     status_code=404,
     detail="Application not found"
 )
-    return {
-        "id": application.id,
-        "student_id": application.student_id,
-        "opportunity_id": application.opportunity_id,
-        "status": application.status,
-        "created_at": application.created_at,
-        "updated_at": application.updated_at
-    }
+    
 
-@router.put("/applications/{application_id}")
-def application_update(application_id:int,application:ApplicationCreate, db: Session =Depends(get_db),current_user: User = Depends(get_current_user)):
+    return application
+    
+
+@router.put("/applications/{application_id}",response_model=ApplicationResponse)
+def application_update(application_id:int,application:ApplicationUpdate, db: Session =Depends(get_db),current_user: User = Depends(get_current_user)):
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
         
     if student_profile is None:
@@ -90,21 +80,16 @@ def application_update(application_id:int,application:ApplicationCreate, db: Ses
         raise HTTPException(status_code=404, detail="Application Not Found")
     
     application_to_update.status = application.status
-    application_to_update.updated_at= application.updated_at
+    application_to_update.updated_at = datetime.now(timezone.utc)
 
 
     db.commit()
     db.refresh(application_to_update)
 
 
-    return {
-        "id": application_to_update.id,
-        "status": application_to_update.status,
-        "updated_at":application_to_update.updated_at
+    return application_to_update
 
-    }
-
-@router.delete("/applications/{application_id}")
+@router.delete("/applications/{application_id}",response_model=MessageResponse)
 def delete_application(application_id:int,db : Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
         

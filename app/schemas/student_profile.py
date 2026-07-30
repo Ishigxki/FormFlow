@@ -13,3 +13,18 @@ class StudentProfileCreate(BaseModel):
     bio: str | None = None
     
 
+class StudentProfileResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    university: str
+    degree:str
+    graduation_year: int
+    bio:str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class MessageResponse(BaseModel):
+    message: str

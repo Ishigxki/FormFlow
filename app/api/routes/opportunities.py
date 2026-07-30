@@ -1,14 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.opptunities import OpportunityCreate
+from app.schemas.opptunities import OpportunityCreate,OpportunityResponse,OpportunityUpdate,MessageResponse
 from app.api.routes.dependencies import get_db
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
+from typing import List
 
 
 
 router = APIRouter()
 
-@router.post("/opportunities")
+@router.post("/opportunities",response_model=OpportunityResponse)
 def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get_db)):
     existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company == opportunity.company).first()
 )
@@ -28,40 +29,24 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
     db.add(new_opportunity)
     db.commit()
     db.refresh(new_opportunity)
-    return {
-        "id": new_opportunity.id,
-        "title": new_opportunity.title,
-        "description": new_opportunity.description,
-        "company": new_opportunity.company,
-        "type": new_opportunity.type,
-        "deadline": new_opportunity.deadline,
-        "application_link": new_opportunity.application_link
-    }
+    return new_opportunity
 
 
-@router.get("/opportunities")
+@router.get("/opportunities",response_model=List[OpportunityResponse])
 def get_opportunities(db: Session = Depends(get_db)):
     opportunities = db.query(Opportunity).all()
     return opportunities
 
-@router.get("/opportunities/{opportunity_id}")  
+@router.get("/opportunities/{opportunity_id}",response_model=OpportunityResponse)  
 def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
     opportunity = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
     if opportunity is None:
        raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
-    return {
-        "id": opportunity.id,
-        "title": opportunity.title,
-        "description": opportunity.description,
-        "company": opportunity.company,
-        "type": opportunity.type,
-        "deadline": opportunity.deadline,
-        "application_link": opportunity.application_link
-    }
+    return opportunity
 
-@router.put("/opportunities/{opportunity_id}")
+@router.put("/opportunities/{opportunity_id}",response_model=OpportunityResponse)
 
-def update_opportunities(opportunity_id: int,opportunity:OpportunityCreate,db:Session =Depends(get_db)):
+def update_opportunities(opportunity_id: int,opportunity:OpportunityUpdate,db:Session =Depends(get_db)):
     opportunity_to_update = db.query(Opportunity).filter(Opportunity.id == opportunity_id).first()
     if opportunity_to_update is None:
         raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
@@ -76,17 +61,9 @@ def update_opportunities(opportunity_id: int,opportunity:OpportunityCreate,db:Se
     db.commit()
     db.refresh(opportunity_to_update)
 
-    return {
-        "id" :opportunity_to_update.id,
-        "title": opportunity_to_update.title,
-        "description":opportunity_to_update.description,
-        "type":opportunity_to_update.type,
-        "deadline":opportunity_to_update.deadline,
-        "application_link":opportunity_to_update.application_link,
-        "company":opportunity_to_update.company
-    }
+    return opportunity_to_update
 
-@router.delete("/opportunities/{opportunity_id}")
+@router.delete("/opportunities/{opportunity_id}",response_model=MessageResponse)
 def delete_opportunities(opportunity_id: int,db: Session=Depends(get_db)):
     opportunity_to_delete = db.query(Opportunity).filter(Opportunity.id==opportunity_id).first()
     if opportunity_to_delete is None:

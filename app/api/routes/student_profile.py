@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.student_profile import StudentProfileCreate
+from app.schemas.student_profile import StudentProfileCreate,MessageResponse
 from app.api.routes.dependencies import get_db
 from app.models.user import User
 from app.models.student_profile import StudentProfile
@@ -99,7 +99,7 @@ def update_student_profile(student_profile: StudentProfileCreate, db: Session = 
 
     }
 
-@router.delete("/student_profile/me")
+@router.delete("/student_profile/me",response_model=MessageResponse)
 def delete_student_profile(current_user: User = Depends(get_current_user),db: Session = Depends(get_db)):
     student_profile_to_delete = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     if student_profile_to_delete is None:
