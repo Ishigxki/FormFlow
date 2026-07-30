@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/student_profile")
 def create_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    user = current_user
+   
     existing_profile = db.query(StudentProfile).filter(
     StudentProfile.user_id == current_user.id
 ).first()
@@ -53,10 +53,10 @@ def get_student_profile(db: Session = Depends(get_db)):
     return student_profiles
 
 
-@router.get("/student_profile/{user_id}")   
-def get_student_profile_by_user_id(user_id: int, db: Session = Depends(get_db)):
+@router.get("/student_profile/me")   
+def get_student_profile_by_user_id(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     
-    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     if student_profile is None:
         raise HTTPException(status_code=404, detail="student profile not found")
     return {
@@ -70,9 +70,9 @@ def get_student_profile_by_user_id(user_id: int, db: Session = Depends(get_db)):
         "bio": student_profile.bio
     }
 
-@router.put("/student_profile/{user_id}")
-def update_student_profile(user_id: int,student_profile: StudentProfileCreate, db: Session = Depends(get_db)):
-    student_to_update = db.query(StudentProfile).filter(StudentProfile.user_id ==user_id).first()
+@router.put("/student_profile/me")
+def update_student_profile(student_profile: StudentProfileCreate, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    student_to_update = db.query(StudentProfile).filter(StudentProfile.user_id ==current_user.id).first()
     if student_to_update is None:
          raise HTTPException(status_code=404,detail="student profile not found")
     
@@ -99,9 +99,9 @@ def update_student_profile(user_id: int,student_profile: StudentProfileCreate, d
 
     }
 
-@router.delete("/student_profile/{user_id}")
-def delete_student_profile(user_id: int,db: Session = Depends(get_db)):
-    student_profile_to_delete = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()
+@router.delete("/student_profile/me")
+def delete_student_profile(current_user: User = Depends(get_current_user),db: Session = Depends(get_db)):
+    student_profile_to_delete = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     if student_profile_to_delete is None:
         raise HTTPException(status_code=404,detail="student profile not found")
     
