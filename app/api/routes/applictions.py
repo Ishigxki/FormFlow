@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.Applications import ApplicationCreate  
 from app.api.routes.dependencies import get_db
 from app.models.Applications import Applications
+from app.security.dependencies import get_current_user
+from app.models.student_profile import StudentProfile
+from app.models.user import User
 from sqlalchemy.orm import Session
 
 
@@ -9,19 +12,25 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 @router.post("/applications")
-def create_application(application: ApplicationCreate, db: Session = Depends(get_db)):
+def create_application(application: ApplicationCreate, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+    if student_profile is None:
+        raise HTTPException(status_code=404,detail="Student profile not found")
+
+    existing_application =db.query(Applications).filter(Applications.opportunity_id == application.opportunity_id,Applications.student_id == student_profile.id).first()
+    if existing_application:
+        raise HTTPException(status_code=400,detail="Student has already applied to this opportunity")
+
     new_application = Applications(
         
-        student_id=application.student_id,
+        student_id=student_profile.id,
         opportunity_id=application.opportunity_id,
         status=application.status,
         created_at=application.created_at,
         updated_at=application.updated_at
     )
-    existing_application =db.query(Applications).filter(Applications.student_id == application.student_id,Applications.opportunity_id == application.opportunity_id).first()
-    if existing_application:
-        raise HTTPException(status_code=400,detail="Student has already applied to this opportunity")
-
+   
     db.add(new_application)
     db.commit()
     db.refresh(new_application)
@@ -35,13 +44,25 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
     }
 
 @router.get("/applications")
-def get_applications(db: Session = Depends(get_db)):
-    applications = db.query(Applications).all()
+def get_applications(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+
+    if student_profile is None:
+        raise HTTPException(status_code=404,detail="Student profile not found")
+
+    applications = db.query(Applications).filter(Applications.student_id == student_profile.id).all()
+
     return applications
 
 @router.get("/applications/{application_id}")
-def get_application(application_id: int, db: Session = Depends(get_db)):
-    application = db.query(Applications).filter(Applications.id == application_id).first()
+def get_application(application_id: int, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+    
+    if student_profile is None:
+        raise HTTPException(status_code=404,detail="Student profile not found")
+    
+    application =db.query(Applications).filter(Applications.id == application_id,Applications.student_id == student_profile.id).first()
+
     if application is None:
         raise HTTPException(
     status_code=404,
@@ -57,8 +78,14 @@ def get_application(application_id: int, db: Session = Depends(get_db)):
     }
 
 @router.put("/applications/{application_id}")
-def application_update(application_id:int,application:ApplicationCreate, db: Session =Depends(get_db)):
-    application_to_update = db.query(Applications).filter(Applications.id == application_id).first()
+def application_update(application_id:int,application:ApplicationCreate, db: Session =Depends(get_db),current_user: User = Depends(get_current_user)):
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+        
+    if student_profile is None:
+        raise HTTPException(status_code=404,detail="Student profile not found")
+        
+    application_to_update = db.query(Applications).filter(Applications.id == application_id,Applications.student_id == student_profile.id).first()
+    
     if application_to_update is None:
         raise HTTPException(status_code=404, detail="Application Not Found")
     
@@ -78,8 +105,14 @@ def application_update(application_id:int,application:ApplicationCreate, db: Ses
     }
 
 @router.delete("/applications/{application_id}")
-def delete_application(application_id:int,db : Session = Depends(get_db)):
-    application_to_delete =db.query(Applications).filter(Applications.id ==application_id).first()
+def delete_application(application_id:int,db : Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+        
+    if student_profile is None:
+        raise HTTPException(status_code=404,detail="Student profile not found")
+        
+    application_to_delete =db.query(Applications).filter(Applications.id == application_id,Applications.student_id == student_profile.id).first()
+
     if application_to_delete is None:
         raise HTTPException (status_code=404,detail="application not found")
     db.delete(application_to_delete)
