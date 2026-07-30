@@ -20,7 +20,7 @@ class StudentProfileResponse(BaseModel):
     university: str
     degree:str
     graduation_year: int
-    bio:str
+    bio:str | None = None
 
     model_config = {
         "from_attributes": True
