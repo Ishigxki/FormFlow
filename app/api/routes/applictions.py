@@ -6,6 +6,7 @@ from app.security.dependencies import get_current_user
 from app.models.student_profile import StudentProfile
 from app.models.user import User
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 
 
 
@@ -23,13 +24,12 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
         raise HTTPException(status_code=400,detail="Student has already applied to this opportunity")
 
     new_application = Applications(
-        
-        student_id=student_profile.id,
-        opportunity_id=application.opportunity_id,
-        status=application.status,
-        created_at=application.created_at,
-        updated_at=application.updated_at
-    )
+    student_id=student_profile.id,
+    opportunity_id=application.opportunity_id,
+    status="Pending",
+    created_at=datetime.now(timezone.utc),
+    updated_at=datetime.now(timezone.utc)
+)
    
     db.add(new_application)
     db.commit()
