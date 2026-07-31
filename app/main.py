@@ -8,7 +8,7 @@ from app.models.student_profile import StudentProfile
 
 
 #if table does not exist, create it
-Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 app.include_router(users.router)
