@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.opptunities import OpportunityCreate,OpportunityResponse,OpportunityUpdate,MessageResponse
 from app.api.routes.dependencies import get_db
+from fastapi import Query
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.models.user import User
 from app.security.dependencies import get_current_user
-from typing import List
+from typing import List, Optional
 
 
 
@@ -38,8 +40,44 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
 
 
 @router.get("/opportunities",response_model=List[OpportunityResponse])
-def get_opportunities(db: Session = Depends(get_db)):
-    opportunities = db.query(Opportunity).all()
+def get_opportunities(page: int = Query(1, ge=1),limit: int = Query(10, ge=1, le=100),db: Session = Depends(get_db),company: Optional[str]=None,opportunity_type: Optional[str] = None,search: Optional[str] = None,sort_by:str =Query("id"),order: str =Query("asc")):
+    offset = (page -1) *limit
+    query = db.query(Opportunity)
+
+    if search:
+        query = query.filter(or_(
+            Opportunity.title.ilike(f"%{search}%"),
+            Opportunity.description.ilike(f"%{search}%"),
+            Opportunity.company.ilike(f"%{search}%")
+        )
+    )
+
+    allowed_sort_fields = {"id": Opportunity.id,"title": Opportunity.title,"company": Opportunity.company,"deadline": Opportunity.deadline,"type": Opportunity.type,}
+
+    sort_column = allowed_sort_fields.get(sort_by)
+
+    if sort_column is None:
+        raise HTTPException(status_code=400,detail="Invalid sort field")
+   
+
+    if company:
+        query = query.filter(Opportunity.company == company)
+        
+    if opportunity_type:
+        query = query.filter(Opportunity.type == opportunity_type)
+
+
+    if order.lower() == "desc":
+        query = query.order_by(sort_column.desc())
+    else:
+        query = query.order_by(sort_column.asc())
+
+    query = query.offset(offset).limit(limit)
+
+    opportunities = query.all()
+
+    
+    
     return opportunities
 
 @router.get("/opportunities/{opportunity_id}",response_model=OpportunityResponse)  
