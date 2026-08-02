@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.opptunities import OpportunityCreate,OpportunityResponse,OpportunityUpdate,MessageResponse
+from app.schemas.opptunities import OpportunityCreate,OpportunityResponse,OpportunityUpdate,MessageResponse,OpportunityListResponse
 from app.api.routes.dependencies import get_db
 from fastapi import Query
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
+import math
 from sqlalchemy import or_
 from app.models.user import User
 from app.security.dependencies import get_current_user
@@ -39,7 +40,7 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
     return new_opportunity
 
 
-@router.get("/opportunities",response_model=List[OpportunityResponse])
+@router.get("/opportunities",response_model=OpportunityListResponse)
 def get_opportunities(page: int = Query(1, ge=1),limit: int = Query(10, ge=1, le=100),db: Session = Depends(get_db),company: Optional[str]=None,opportunity_type: Optional[str] = None,search: Optional[str] = None,sort_by:str =Query("id"),order: str =Query("asc")):
     offset = (page -1) *limit
     query = db.query(Opportunity)
@@ -72,13 +73,16 @@ def get_opportunities(page: int = Query(1, ge=1),limit: int = Query(10, ge=1, le
     else:
         query = query.order_by(sort_column.asc())
 
+    total = query.count()
+    total_pages = math.ceil(total / limit)
+
     query = query.offset(offset).limit(limit)
 
     opportunities = query.all()
 
     
     
-    return opportunities
+    return {"total": total,"page": page,"limit": limit,"total_pages": total_pages,"items": opportunities,}
 
 @router.get("/opportunities/{opportunity_id}",response_model=OpportunityResponse)  
 def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):

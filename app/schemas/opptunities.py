@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import List
+
 
 class OpportunityCreate(BaseModel):
     title: str
@@ -31,6 +33,14 @@ class OpportunityResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class OpportunityListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    items: List[OpportunityResponse]
 
 class MessageResponse(BaseModel):
     message: str
