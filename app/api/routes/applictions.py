@@ -49,17 +49,33 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
     return new_application
 
 @router.get("/applications",response_model=ApplicationListResponse)
-def get_applications(page: int = 1,limit: int = 10,status: ApplicationStatus | None = None,search: str | None = None,db: Session = Depends(get_db),student_profile: StudentProfile = Depends(get_current_student_profile)):
+def get_applications(page: int = 1,limit: int = 10,status: ApplicationStatus | None = None,search: str | None = None,sort_by: str = "created_at",order: str = "desc",db: Session = Depends(get_db),student_profile: StudentProfile = Depends(get_current_student_profile)):
     #student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     
     offset = (page - 1) * limit
     query = (db.query(Applications).join(Opportunity).options(joinedload(Applications.opportunity)).filter(Applications.student_id == student_profile.id))
-    total = query.count()
+    
     if status is not None:
         query = query.filter(Applications.status == status.value)
 
     if search:
         query = query.filter(or_(Opportunity.title.ilike(f"%{search}%"),Opportunity.company.ilike(f"%{search}%"),))
+
+    sort_columns = {"created_at": Applications.created_at,"updated_at": Applications.updated_at,"status": Applications.status,}
+    if sort_by not in sort_columns:
+        raise HTTPException(status_code=400,detail="Invalid sort field.")
+    column = sort_columns[sort_by]
+
+    if order.lower() not in ("asc", "desc"):
+        raise HTTPException(status_code=400,detail="Invalid sort order.")
+
+    if order.lower() == "desc":
+        query = query.order_by(column.desc())
+    else:
+        query = query.order_by(column.asc())
+
+    
+    total = query.count()
     total_pages = (total + limit - 1) // limit
 
 
