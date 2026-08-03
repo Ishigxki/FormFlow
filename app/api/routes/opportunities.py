@@ -16,8 +16,9 @@ router = APIRouter()
 
 @router.post("/opportunities",response_model=OpportunityResponse)
 def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company == opportunity.company).first()
-)
+    existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company == opportunity.company).first())
+
+    
 
     if existing_opportunity:
         raise HTTPException(status_code=400,detail="Opportunity already registered")
