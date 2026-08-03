@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.Applications import ApplicationCreate, ApplicationResponse, ApplicationUpdate,MessageResponse
+from app.schemas.Applications import ApplicationCreate, ApplicationResponse, ApplicationUpdate,MessageResponse,ApplicationListResponse
 from app.api.routes.dependencies import get_db
 from app.enums.application_status import ApplicationStatus
 from app.models.Applications import Applications
@@ -47,14 +47,18 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
     db.query(Applications).options(joinedload(Applications.opportunity)).filter(Applications.id == new_application.id).first())
     return new_application
 
-@router.get("/applications",response_model=List[ApplicationResponse])
-def get_applications(db: Session = Depends(get_db),student_profile: StudentProfile = Depends(get_current_student_profile)):
+@router.get("/applications",response_model=ApplicationListResponse)
+def get_applications(page: int = 1,limit: int = 10,db: Session = Depends(get_db),student_profile: StudentProfile = Depends(get_current_student_profile)):
     #student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+    total = (db.query(Applications).filter(Applications.student_id == student_profile.id).count())
+
+    offset = (page - 1) * limit
+
+    total_pages = (total + limit - 1) // limit
 
 
-    applications = (db.query(Applications).options(joinedload(Applications.opportunity)).filter(Applications.student_id == student_profile.id).all())
-
-    return applications
+    applications = (db.query(Applications).options(joinedload(Applications.opportunity)).filter(Applications.student_id == student_profile.id).offset(offset).limit(limit).all())
+    return {"total": total,"page": page,"limit": limit,"total_pages": total_pages,"items": applications,}
 
 @router.get("/applications/{application_id}",response_model=ApplicationResponse)
 def get_application(application_id: int, db: Session = Depends(get_db),student_profile: StudentProfile = Depends(get_current_student_profile)):

@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from app.enums.application_status import ApplicationStatus
 from app.schemas.opptunities import OpportunityResponse
+from typing import List
 
 class ApplicationCreate(BaseModel):
     
@@ -16,7 +17,12 @@ class OpportunitySummary(BaseModel):
 
     model_config = {"from_attributes": True}
     
-
+class ApplicationListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    items: List[ApplicationResponse]
 
 class ApplicationResponse(BaseModel):
     id: int
