@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.student_profile import StudentProfile
 from app.models.Opportunities import Opportunity
 from app.models.Applications import Applications
+from app.models.Company import Company
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

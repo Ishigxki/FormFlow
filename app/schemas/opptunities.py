@@ -1,12 +1,13 @@
 from pydantic import BaseModel
 from datetime import datetime
+from app.schemas.company import CompanySummary
 from typing import List
 
 
 class OpportunityCreate(BaseModel):
     title: str
     description: str
-    company: str
+    company_id: int
     type: str
     deadline: datetime
     application_link: str
@@ -15,7 +16,7 @@ class OpportunityCreate(BaseModel):
 class OpportunityUpdate(BaseModel):
     title: str
     description: str
-    company: str
+    company_id: int
     type: str
     deadline: datetime
     application_link: str
@@ -25,7 +26,7 @@ class OpportunityResponse(BaseModel):
     id: int
     title: str
     description: str
-    company: str
+    company: CompanySummary
     type: str
     deadline: datetime
     application_link: str
