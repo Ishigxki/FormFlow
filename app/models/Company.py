@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime,Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
@@ -22,7 +22,11 @@ class Company(Base):
 
     logo_url = Column(String(255), nullable=True)
 
-    created_at = Column(DateTime, nullable=False, default=utc_now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+    is_deleted = Column(Boolean, default=False, nullable=False)
+
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     opportunities = relationship(
         "Opportunity",

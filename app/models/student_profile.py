@@ -19,6 +19,8 @@ class StudentProfile(Base):
     degree = Column(String(100), nullable=False)
     graduation_year = Column(Integer, nullable=False)
     bio = Column(String(255), nullable=True)
+    is_deleted = Column(Boolean, default=False, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
 
 
     user =relationship("User", back_populates="student_profile")

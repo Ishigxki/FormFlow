@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from app.enums.application_status import ApplicationStatus
 from app.models.Applications import Applications
 from sqlalchemy.orm import joinedload
+from app.models.Applications import utc_now
 
 from app.models.student_profile import StudentProfile
 
@@ -24,12 +25,19 @@ def create_application(application: ApplicationCreate, db: Session = Depends(get
 
     #student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
 
-    opportunity = db.get(Opportunity, application.opportunity_id)
+    opportunity = (
+    db.query(Opportunity)
+    .filter(
+        Opportunity.id == application.opportunity_id,
+        Opportunity.is_deleted == False,
+    )
+    .first()
+)
 
     if opportunity is None:
         raise HTTPException(status_code=404,detail="Opportunity not found")
 
-    existing_application =db.query(Applications).filter(Applications.opportunity_id == application.opportunity_id,Applications.student_id == student_profile.id).first()
+    existing_application =db.query(Applications).filter(Applications.opportunity_id == application.opportunity_id,Applications.student_id == student_profile.id,Applications.is_deleted == False).first()
     if existing_application:
         raise HTTPException(status_code=400,detail="Student has already applied to this opportunity")
 
@@ -53,7 +61,7 @@ def get_applications(page: int = 1,limit: int = 10,status: ApplicationStatus | N
     #student_profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
     
     offset = (page - 1) * limit
-    query = (db.query(Applications).join(Opportunity).options(joinedload(Applications.opportunity)).filter(Applications.student_id == student_profile.id))
+    query = (db.query(Applications).join(Opportunity).options(joinedload(Applications.opportunity)).filter(Applications.student_id == student_profile.id,Applications.is_deleted == False,Opportunity.is_deleted == False))
     
     if status is not None:
         query = query.filter(Applications.status == status.value)
@@ -104,7 +112,8 @@ def delete_application(application_id:int,db : Session = Depends(get_db),student
     application_to_delete =get_student_application(application_id,student_profile,db,)
 
     
-    db.delete(application_to_delete)
+    application_to_delete.is_deleted =True
+    application_to_delete.deleted_at = utc_now()
     db.commit()
 
     return {

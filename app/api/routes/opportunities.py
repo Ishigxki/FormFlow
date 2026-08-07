@@ -1,34 +1,41 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.opptunities import OpportunityCreate,OpportunityResponse,OpportunityUpdate,MessageResponse,OpportunityListResponse
 from app.api.routes.dependencies import get_db
+from app.security.require_admin import require_admin
+from app.models.Company import Company,utc_now
 from sqlalchemy.orm import joinedload
-from app.models.Company import Company
+
 from fastapi import Query
 from app.models.Opportunities import Opportunity
 from sqlalchemy.orm import Session
 import math
 from sqlalchemy import or_
 from app.models.user import User
-from app.security.dependencies import get_current_user
-from typing import List, Optional
+
+from typing import  Optional
 
 
 
 router = APIRouter()
 
 @router.post("/opportunities",response_model=OpportunityResponse)
-def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company_id == opportunity.company_id).first())
+def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    existing_opportunity = (db.query(Opportunity).filter(Opportunity.title == opportunity.title,Opportunity.company_id == opportunity.company_id,Opportunity.is_deleted == False).first())
 
     
 
     if existing_opportunity:
         raise HTTPException(status_code=400,detail="Opportunity already registered")
 
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403,detail="Admin access required")
 
-    company = db.get(Company, opportunity.company_id)
+    company = (
+    db.query(Company)
+    .filter(
+        Company.id == opportunity.company_id,
+        Company.is_deleted == False,
+    )
+    .first()
+)
 
     if company is None:
         raise HTTPException(status_code=404,detail="Company not found")
@@ -45,14 +52,14 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
     db.add(new_opportunity)
     db.commit()
     db.refresh(new_opportunity)
-    new_opportunity = (db.query(Opportunity).options(joinedload(Opportunity.company)).filter(Opportunity.id == new_opportunity.id).first())
+    new_opportunity = (db.query(Opportunity).join(Company).options(joinedload(Opportunity.company)).filter(Opportunity.id == new_opportunity.id,Opportunity.is_deleted == False,Company.is_deleted==False).first())
     return new_opportunity
 
 
 @router.get("/opportunities",response_model=OpportunityListResponse)
 def get_opportunities(page: int = Query(1, ge=1),limit: int = Query(10, ge=1, le=100),db: Session = Depends(get_db),company: Optional[str]=None,opportunity_type: Optional[str] = None,search: Optional[str] = None,sort_by:str =Query("id"),order: str =Query("asc")):
     offset = (page -1) *limit
-    query = (db.query(Opportunity).join(Company).options(joinedload(Opportunity.company)))
+    query = (db.query(Opportunity).join(Company).options(joinedload(Opportunity.company)).filter(Opportunity.is_deleted == False,Company.is_deleted == False))
 
     if search:
         query = query.filter(or_(
@@ -95,7 +102,17 @@ def get_opportunities(page: int = Query(1, ge=1),limit: int = Query(10, ge=1, le
 
 @router.get("/opportunities/{opportunity_id}",response_model=OpportunityResponse)  
 def get_opportunity(opportunity_id: int, db: Session = Depends(get_db)):
-    opportunity = db.query(Opportunity).options(joinedload(Opportunity.company)).filter(Opportunity.id == opportunity_id).first()
+    opportunity = (
+    db.query(Opportunity)
+    .join(Company)
+    .options(joinedload(Opportunity.company))
+    .filter(
+        Opportunity.id == opportunity_id,
+        Opportunity.is_deleted == False,
+        Company.is_deleted == False,
+    )
+    .first()
+)
     if opportunity is None:
        raise HTTPException(status_code=404, detail="Opportunity doesn't exist")
     return opportunity
@@ -107,12 +124,12 @@ def update_opportunities(
     opportunity_id: int,
     opportunity: OpportunityUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
 ):
 
     opportunity_to_update = (
         db.query(Opportunity)
-        .filter(Opportunity.id == opportunity_id)
+        .filter(Opportunity.id == opportunity_id,Opportunity.is_deleted == False)
         .first()
     )
 
@@ -122,13 +139,15 @@ def update_opportunities(
             detail="Opportunity doesn't exist"
         )
 
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required"
-        )
 
-    company = db.get(Company, opportunity.company_id)
+    company = (
+    db.query(Company)
+    .filter(
+        Company.id == opportunity.company_id,
+        Company.is_deleted == False,
+    )
+    .first()
+)
 
     if company is None:
         raise HTTPException(
@@ -145,19 +164,25 @@ def update_opportunities(
 
     db.commit()
 
-    updated = (db.query(Opportunity).options(joinedload(Opportunity.company)).filter(Opportunity.id == opportunity_id).first())
+    updated = (db.query(Opportunity).join(Company).options(joinedload(Opportunity.company)).filter(Opportunity.id == opportunity_id,Opportunity.is_deleted == False,Company.is_deleted == False).first())
 
     return updated
 
 @router.delete("/opportunities/{opportunity_id}",response_model=MessageResponse)
-def delete_opportunities(opportunity_id: int,db: Session=Depends(get_db), current_user: User = Depends(get_current_user)):
-    opportunity_to_delete = db.query(Opportunity).filter(Opportunity.id==opportunity_id).first()
+def delete_opportunities(opportunity_id: int,db: Session=Depends(get_db), _: User = Depends(require_admin)):
+    opportunity_to_delete = (
+    db.query(Opportunity)
+    .filter(
+        Opportunity.id == opportunity_id,
+        Opportunity.is_deleted == False,
+    )
+    .first()
+)
     if opportunity_to_delete is None:
         raise HTTPException(status_code=404, detail="opportunity not found")
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403,detail="Admin access required")
     
-    db.delete(opportunity_to_delete)
+    opportunity_to_delete.is_deleted = True
+    opportunity_to_delete.deleted_at = utc_now()
     db.commit()
 
     return {

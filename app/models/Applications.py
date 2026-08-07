@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime,ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime,ForeignKey,Boolean
 from app.enums.application_status import ApplicationStatus
 from sqlalchemy.orm import relationship
 from app.database.database import Base
@@ -20,8 +20,10 @@ class Applications(Base):
     student_id =Column(Integer, ForeignKey("student_profile.id"), nullable=False)
     opportunity_id = Column(Integer, ForeignKey("opportunities.id"), nullable=False)
     status = Column(String(20),nullable=False, default=ApplicationStatus.PENDING.value)
-    created_at = Column(DateTime, nullable=False, default=utc_now)
-    updated_at = Column(DateTime,nullable=False,default=utc_now,onupdate=utc_now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at = Column(DateTime(timezone=True),nullable=False,default=utc_now,onupdate=utc_now)
+    is_deleted = Column(Boolean, default=False, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     student = relationship("StudentProfile",back_populates="applications")
     
